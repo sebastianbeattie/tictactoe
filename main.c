@@ -168,10 +168,45 @@ void clear()
     printf("\e[1;1H\e[2J");
 }
 
-int main()
+int check_game_status(char *current_turn)
 {
+    if (check_win(*current_turn))
+    {
+        draw_board();
+        printf("\nPlayer %c has won this game!\n", *current_turn);
+        return 0;
+    }
+    else if (check_tie())
+    {
+        draw_board();
+        printf("The game has ended in a tie!\n");
+        return 0;
+    }
+    else
+    {
+        if (*current_turn == 'X')
+            *current_turn = 'O';
+        else if (*current_turn == 'O')
+            *current_turn = 'X';
+        return 1;
+    }
+}
 
+int main(int argc, char **argv)
+{
     char current_turn = 'X';
+    if (argc > 1)
+    {
+        if (argv[1][0] == 'O')
+            current_turn = 'O';
+        if (argv[1][0] == 'X')
+            current_turn = 'X';
+        else
+        {
+            printf("Invalid first move. Should be X or O\n");
+            exit(1);
+        }
+    }
     int playing = 1;
     while (playing)
     {
@@ -198,19 +233,7 @@ int main()
             if (check_if_available(position_index))
             {
                 make_move(position_index, current_turn);
-                if (check_win(current_turn))
-                {
-                    draw_board();
-                    printf("\nPlayer %c has won this game!\n", current_turn);
-                    playing = 0;
-                }
-                else if (check_tie())
-                {
-                    draw_board();
-                    printf("The game has ended in a tie!\n");
-                    playing = 0;
-                }
-                current_turn = 'O';
+                playing = check_game_status(&current_turn);
             }
             else
             {
@@ -236,19 +259,7 @@ int main()
                 }
             }
             make_move(best_move, current_turn);
-            if (check_win(current_turn))
-            {
-                draw_board();
-                printf("\nPlayer %c has won this game!\n", current_turn);
-                playing = 0;
-            }
-            else if (check_tie())
-            {
-                draw_board();
-                printf("The game has ended in a tie!\n");
-                playing = 0;
-            }
-            current_turn = 'X';
+            playing = check_game_status(&current_turn);
         }
     }
 }
